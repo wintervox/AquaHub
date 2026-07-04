@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Water Sales – Pure Flow Refill</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="logo"><span class="logo-mark"></span> Aqua Hub</a>
+    <nav class="links">
+      <a href="index.html">Home</a>
+      <a href="stock.html">Pricing</a>
+      <a href="gallery.html">Gallery</a>
+      <a href="sales.html" class="active">Sales</a>
+    </nav>
+    <a href="sales-goods.html" class="btn btn-ghost btn-small">Switch to Goods</a>
+  </div>
+</header>
+
+<main>
+  <div class="wrap sales-page">
+    <a href="sales.html" style="display:inline-flex;align-items:center;gap:6px;font-size:.85rem;color:var(--slate);margin-bottom:16px;">&larr; Back to Sales</a>
+
+    <h1>💧 Water Sales</h1>
+    <p class="sub">Tap a product button each time you make a sale. Every tap is logged instantly.</p>
+
+    <!-- Staff name -->
+    <div class="staff-row">
+      <label for="staffName">Staff on duty:</label>
+      <input type="text" id="staffName" placeholder="Your name" maxlength="40">
+    </div>
+    <div id="staffWelcome" class="empty-note" style="display:none;margin-top:-8px;"></div>
+    <div class="staff-row" style="margin-top:8px;">
+      <button class="btn btn-primary btn-small" id="submitSalesBtn">Submit Sales</button>
+    </div>
+
+    <!-- POS buttons -->
+    <div id="posGrid" class="pos-grid">
+      <div class="empty-note" id="posLoading">Loading water items&hellip;</div>
+    </div>
+
+    <!-- Today's summary pills -->
+    <div class="sales-summary" id="todaySummary"></div>
+
+    <!-- Metre reading -->
+    <div class="metre-panel">
+      <h3>💡 Metre Reading</h3>
+      <p class="sub">Log your morning and evening readings to verify how much water was dispensed.</p>
+      <div class="metre-form" id="metreForm">
+        <div>
+          <label for="mrDate">Date</label>
+          <input type="date" id="mrDate">
+        </div>
+        <div>
+          <label for="mrMorning">Morning reading (m³)</label>
+          <input type="number" id="mrMorning" placeholder="e.g. 1024.50" step="0.01" min="0">
+        </div>
+        <div>
+          <label for="mrEvening">Evening reading (m³)</label>
+          <input type="number" id="mrEvening" placeholder="e.g. 1027.30" step="0.01" min="0">
+        </div>
+        <div>
+          <label>&nbsp;</label>
+          <button class="btn btn-primary btn-small" id="logMetreBtn" style="border-radius:8px;padding:10px 16px;">Log Reading</button>
+        </div>
+      </div>
+
+      <div class="metre-result" id="metreResult" style="display:none;">
+        <div class="metre-stat">
+          <div class="m-label">Metre dispensed</div>
+          <div class="m-val ok" id="mrMetreLitres">—</div>
+        </div>
+        <div class="metre-stat">
+          <div class="m-label">Sales recorded</div>
+          <div class="m-val ok" id="mrSaleLitres">—</div>
+        </div>
+        <div class="metre-stat">
+          <div class="m-label">Difference</div>
+          <div class="m-val" id="mrDiff">—</div>
+        </div>
+        <div class="metre-stat">
+          <div class="m-label">Variance</div>
+          <div class="m-val" id="mrVariance">—</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Past metre readings -->
+    <div class="panel">
+      <h3>Metre reading log</h3>
+      <div class="table-scroll">
+        <table id="metreTable" class="hide">
+          <thead>
+            <tr><th>Date</th><th class="num">Morning (m³)</th><th class="num">Evening (m³)</th>
+              <th class="num">Used (L)</th><th class="num">Sold (L)</th><th class="num">Diff (L)</th></tr>
+          </thead>
+          <tbody id="metreBody"></tbody>
+        </table>
+      </div>
+      <div id="noMetreNote" class="empty-note">No metre readings yet.</div>
+    </div>
+
+    <!-- Today's sales log -->
+    <div class="panel">
+      <h3>Today's water sales log</h3>
+      <div class="table-scroll">
+        <table id="salesTable" class="hide">
+          <thead><tr><th>Item</th><th class="num">Price</th><th>Staff</th><th>Time</th></tr></thead>
+          <tbody id="salesBody"></tbody>
+        </table>
+      </div>
+      <div id="noSalesNote" class="empty-note">No water sales logged today.</div>
+    </div>
+  </div>
+</main>
+
+<script src="shop-data.js"></script>
+<script src="sales-water.js"></script>
+</body>
+</html>

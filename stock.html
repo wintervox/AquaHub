@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stock &amp; Pricing – Pure Flow Refill</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="logo"><span class="logo-mark"></span> Aqua Hub</a>
+    <nav class="links">
+      <a href="index.html">Home</a>
+      <a href="stock.html" class="active">Pricing</a>
+      <a href="gallery.html">Gallery</a>
+      <a href="sales.html">Sales</a>
+    </nav>
+    <a href="sales.html" class="btn btn-primary btn-small">Record Sale</a>
+  </div>
+</header>
+
+<main>
+  <section class="section dark-page" id="stock">
+    <div class="wrap">
+      <a href="index.html" class="back-link">&larr; Back to home</a>
+
+      <div class="section-head" style="margin-top:18px;">
+        <p class="eyebrow">Stock &amp; Pricing</p>
+        <h2>What's in stock and what it costs.</h2>
+        <p>Staff can check levels and submit restock requests. Admin can update prices, add items, and approve requests.</p>
+      </div>
+
+      <div class="role-toggle">
+        <button class="role-btn active" id="roleStaffBtn">Staff view</button>
+        <button class="role-btn" id="roleAdminBtn">Admin view</button>
+      </div>
+      <p class="role-note">Toggle is view-only — not a real login. Set up a backend if you need proper access control.</p>
+
+      <div class="stat-grid">
+        <div class="stat-card"><div class="label">Total stock on hand</div><div class="value" id="statStock">&mdash;</div></div>
+        <div class="stat-card warn"><div class="label">Low stock items</div><div class="value" id="statLow">&mdash;</div></div>
+        <div class="stat-card warn"><div class="label">Pending requests</div><div class="value" id="statPending">&mdash;</div></div>
+      </div>
+
+      <div class="panel">
+        <h3>All items</h3>
+        <div id="loadingNote" class="empty-note">Loading&hellip;</div>
+        <div class="table-scroll">
+          <table id="inventoryTable" class="hide">
+            <thead>
+              <tr>
+                <th>Item</th>
+                <th>Category</th>
+                <th class="num">Price</th>
+                <th class="num">Stock</th>
+                <th class="admin-only hide">Admin actions</th>
+              </tr>
+            </thead>
+            <tbody id="inventoryBody"></tbody>
+          </table>
+        </div>
+
+        <div class="admin-only hide" style="margin-top:22px;">
+          <h3>Add new item</h3>
+          <div class="form-row">
+            <input type="text" id="newName" placeholder="Item name">
+            <select id="newCategory">
+              <option value="water">Water</option>
+              <option value="goods">Goods</option>
+            </select>
+            <input type="number" id="newPrice" placeholder="Price" min="0" step="0.01">
+            <input type="number" id="newLitres" placeholder="Litres/unit (water only)" min="0" step="0.5">
+            <input type="number" id="newStock" placeholder="Starting stock" min="0" step="1">
+            <button class="btn btn-primary btn-small" id="goToGalleryBtn">Add with image</button>
+          </div>
+          <p class="empty-note">This opens the gallery page so you can add a photo for the item before it is saved.</p>
+        </div>
+      </div>
+
+      <!-- Staff: request restock -->
+      <div class="panel staff-only">
+        <h3>Request more stock</h3>
+        <div class="form-row">
+          <input type="text" id="requesterName" placeholder="Your name">
+          <select id="requestItem"></select>
+          <input type="number" id="requestQty" placeholder="Quantity needed" min="1" step="1">
+        </div>
+        <div class="form-row">
+          <input type="text" id="requestNote" placeholder="Note (optional)">
+          <button class="btn btn-primary btn-small" id="submitRequestBtn">Send request</button>
+        </div>
+      </div>
+
+      <!-- Requests table (both views) -->
+      <div class="panel">
+        <h3>Restock requests</h3>
+        <div class="table-scroll">
+          <table id="requestsTable" class="hide">
+            <thead>
+              <tr>
+                <th>Item</th><th class="num">Qty</th><th>By</th><th>Note</th><th>Status</th>
+                <th class="admin-only hide">Action</th>
+              </tr>
+            </thead>
+            <tbody id="requestsBody"></tbody>
+          </table>
+        </div>
+        <div id="noRequestsNote" class="empty-note">No requests yet.</div>
+        <div class="reset-row admin-only hide">
+          <button class="btn btn-ghost btn-small text-danger" id="resetBtn">Clear all data</button>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script src="shop-data.js"></script>
+<script src="stock.js"></script>
+</body>
+</html>

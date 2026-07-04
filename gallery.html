@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gallery – Aqua Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="logo"><span class="logo-mark"></span> Aqua Hub</a>
+    <nav class="links">
+      <a href="index.html">Home</a>
+      <a href="stock.html">Stock</a>
+      <a href="gallery.html" class="active">Gallery</a>
+      <a href="sales.html">Sales</a>
+    </nav>
+    <a href="sales.html" class="btn btn-primary btn-small">Record Sale</a>
+  </div>
+</header>
+
+<main>
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="eyebrow">Gallery</p>
+        <h2>Everything the shop has to offer</h2>
+        <p>Items with images will appear here, including new stock added from the stock page.</p>
+      </div>
+
+      <div class="panel gallery-form-panel">
+        <h3>Add a stock item with an image</h3>
+        <div class="form-row">
+          <input type="text" id="galleryName" placeholder="Item name">
+          <select id="galleryCategory">
+            <option value="water">Water</option>
+            <option value="goods">Goods</option>
+          </select>
+          <input type="number" id="galleryPrice" placeholder="Price" min="0" step="0.01">
+          <input type="number" id="galleryLitres" placeholder="Litres/unit" min="0" step="0.5">
+          <input type="number" id="galleryStock" placeholder="Starting stock" min="0" step="1">
+        </div>
+        <div class="form-row">
+          <input type="url" id="galleryImageUrl" placeholder="Image URL (required)">
+          <button class="btn btn-primary btn-small" id="galleryAddBtn">Save to gallery</button>
+          <a href="stock.html" class="btn btn-ghost btn-small">Back to stock</a>
+        </div>
+      </div>
+
+      <div id="galleryList" class="gallery-grid"></div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap footer-grid">
+    <div>
+      <h4>Pure Flow Refill</h4>
+      <p>Filtered water, refilled while you wait.</p>
+    </div>
+  </div>
+</footer>
+
+<script src="shop-data.js"></script>
+<script>
+(function () {
+  var state = null;
+
+  function renderGallery() {
+    var list = document.getElementById('galleryList');
+    list.innerHTML = '';
+
+    var itemsWithImages = state.items.filter(function (item) {
+      return item.imageUrl && item.imageUrl.trim();
+    });
+
+    if (!itemsWithImages.length) {
+      list.innerHTML = '<div class="empty-note">No items with images yet. Add one from this form to see it here.</div>';
+      return;
+    }
+
+    itemsWithImages.forEach(function (item) {
+      var tile = document.createElement('article');
+      tile.className = 'gallery-tile gallery-card';
+
+      var img = document.createElement('img');
+      img.src = item.imageUrl;
+      img.alt = item.name;
+      img.className = 'gallery-image';
+
+      var title = document.createElement('strong');
+      title.textContent = item.name;
+
+      var meta = document.createElement('span');
+      meta.className = 'gallery-meta';
+      meta.textContent = item.category.toUpperCase() + ' • ' + ShopData.money(item.price);
+
+      var stockLine = document.createElement('span');
+      stockLine.className = 'gallery-meta';
+      stockLine.textContent = 'Stock: ' + item.stock;
+
+      tile.appendChild(img);
+      tile.appendChild(title);
+      tile.appendChild(meta);
+      tile.appendChild(stockLine);
+      list.appendChild(tile);
+    });
+  }
+
+  async function init() {
+    state = await ShopData.load();
+
+    try {
+      var pending = sessionStorage.getItem('pendingStockItem');
+      if (pending) {
+        var data = JSON.parse(pending);
+        document.getElementById('galleryName').value = data.name || '';
+        document.getElementById('galleryCategory').value = data.category || 'water';
+        document.getElementById('galleryPrice').value = data.price || '';
+        document.getElementById('galleryLitres').value = data.litresPerUnit || '';
+        document.getElementById('galleryStock').value = data.stock || '';
+      }
+    } catch (e) {
+      sessionStorage.removeItem('pendingStockItem');
+    }
+
+    renderGallery();
+
+    document.getElementById('galleryAddBtn').addEventListener('click', function () {
+      var n = document.getElementById('galleryName').value.trim();
+      var cat = document.getElementById('galleryCategory').value;
+      var p = parseFloat(document.getElementById('galleryPrice').value);
+      var l = parseFloat(document.getElementById('galleryLitres').value) || 0;
+      var s = parseInt(document.getElementById('galleryStock').value, 10);
+      var imageUrl = document.getElementById('galleryImageUrl').value.trim();
+
+      if (!n) { alert('Enter a name.'); return; }
+      if (isNaN(p) || p < 0) { alert('Enter a valid price.'); return; }
+      if (isNaN(s) || s < 0) { alert('Enter starting stock.'); return; }
+      if (!imageUrl) { alert('Add an image URL so the item appears in the gallery.'); return; }
+
+      state.items.push({ id: ShopData.uid('itm'), name: n, category: cat, price: p, litresPerUnit: l, stock: s, imageUrl: imageUrl });
+      sessionStorage.removeItem('pendingStockItem');
+      ShopData.save(state); renderGallery();
+      document.getElementById('galleryName').value = '';
+      document.getElementById('galleryCategory').value = 'water';
+      document.getElementById('galleryPrice').value = '';
+      document.getElementById('galleryLitres').value = '';
+      document.getElementById('galleryStock').value = '';
+      document.getElementById('galleryImageUrl').value = '';
+      alert('Item saved to the gallery and stock list.');
+    });
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>

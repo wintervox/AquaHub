@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Records – Aqua Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="logo"><span class="logo-mark"></span> Aqua Hub</a>
+    <nav class="links">
+      <a href="index.html">Home</a>
+      <a href="stock.html">Pricing</a>
+      <a href="gallery.html">Gallery</a>
+      <a href="sales.html">Sales</a>
+      <a href="records.html" class="active">Records</a>
+    </nav>
+    <a href="sales.html" class="btn btn-primary btn-small">Record Sale</a>
+  </div>
+</header>
+
+<main>
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="eyebrow">Records</p>
+        <h2>Sales and meter entries</h2>
+        <p>Staff can review recorded activity here before submission. Admins can edit records.</p>
+      </div>
+
+      <div class="role-toggle">
+        <button class="role-btn active" id="recordsStaffBtn">Staff view</button>
+        <button class="role-btn" id="recordsAdminBtn">Admin view</button>
+      </div>
+
+      <div class="panel">
+        <h3>Recorded sales</h3>
+        <div class="table-scroll">
+          <table id="recordsSalesTable">
+            <thead>
+              <tr>
+                <th>Item</th>
+                <th>Category</th>
+                <th class="num">Price</th>
+                <th>Staff</th>
+                <th>Time</th>
+                <th class="admin-only hide">Action</th>
+              </tr>
+            </thead>
+            <tbody id="recordsSalesBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>Meter readings</h3>
+        <div class="table-scroll">
+          <table id="recordsMeterTable">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th class="num">Morning</th>
+                <th class="num">Evening</th>
+                <th class="num">Used (L)</th>
+                <th class="admin-only hide">Action</th>
+              </tr>
+            </thead>
+            <tbody id="recordsMeterBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script src="shop-data.js"></script>
+<script>
+(function () {
+  var state = {};
+  var role = 'staff';
+
+  function setRole(r) {
+    role = r;
+    document.getElementById('recordsStaffBtn').classList.toggle('active', r === 'staff');
+    document.getElementById('recordsAdminBtn').classList.toggle('active', r === 'admin');
+    document.querySelectorAll('.admin-only').forEach(function (el) { el.classList.toggle('hide', r !== 'admin'); });
+    render();
+  }
+
+  async function init() {
+    state = await ShopData.load();
+    render();
+  }
+
+  function persist() { return ShopData.save(state); }
+
+  function render() {
+    renderSales();
+    renderMeter();
+  }
+
+  function renderSales() {
+    var body = document.getElementById('recordsSalesBody');
+    body.innerHTML = '';
+
+    var rows = (state.sales || []).slice().sort(function (a, b) { return b.timestamp - a.timestamp; });
+    if (!rows.length) {
+      body.innerHTML = '<tr><td colspan="6" class="empty-note">No sales recorded yet.</td></tr>';
+      return;
+    }
+
+    rows.forEach(function (sale) {
+      var tr = document.createElement('tr');
+      var cells = [
+        sale.itemName || '—',
+        (sale.category || 'water').toUpperCase(),
+        ShopData.money(sale.price || 0),
+        sale.staffName || 'Staff',
+        new Date(sale.timestamp).toLocaleString(),
+      ];
+
+      cells.forEach(function (text) {
+        var td = document.createElement('td');
+        td.textContent = text;
+        tr.appendChild(td);
+      });
+
+      if (role === 'admin') {
+        var td = document.createElement('td');
+        var btn = document.createElement('button');
+        btn.className = 'btn btn-ghost btn-small';
+        btn.textContent = 'Remove';
+        btn.addEventListener('click', function () {
+          if (confirm('Remove this record?')) {
+            state.sales = (state.sales || []).filter(function (item) { return item.id !== sale.id; });
+            persist();
+            render();
+          }
+        });
+        td.appendChild(btn);
+        tr.appendChild(td);
+      }
+
+      body.appendChild(tr);
+    });
+  }
+
+  function renderMeter() {
+    var body = document.getElementById('recordsMeterBody');
+    body.innerHTML = '';
+
+    var rows = (state.metreReadings || []).slice().sort(function (a, b) { return b.date.localeCompare(a.date); });
+    if (!rows.length) {
+      body.innerHTML = '<tr><td colspan="5" class="empty-note">No meter readings recorded yet.</td></tr>';
+      return;
+    }
+
+    rows.forEach(function (entry) {
+      var tr = document.createElement('tr');
+      var cells = [
+        entry.date,
+        entry.morning,
+        entry.evening,
+        entry.litresUsed || 0
+      ];
+
+      cells.forEach(function (text) {
+        var td = document.createElement('td');
+        td.textContent = text;
+        tr.appendChild(td);
+      });
+
+      if (role === 'admin') {
+        var td = document.createElement('td');
+        var btn = document.createElement('button');
+        btn.className = 'btn btn-ghost btn-small';
+        btn.textContent = 'Remove';
+        btn.addEventListener('click', function () {
+          if (confirm('Remove this meter reading?')) {
+            state.metreReadings = (state.metreReadings || []).filter(function (item) { return item.id !== entry.id; });
+            persist();
+            render();
+          }
+        });
+        td.appendChild(btn);
+        tr.appendChild(td);
+      }
+
+      body.appendChild(tr);
+    });
+  }
+
+  document.getElementById('recordsStaffBtn').addEventListener('click', function () { setRole('staff'); });
+  document.getElementById('recordsAdminBtn').addEventListener('click', function () { setRole('admin'); });
+
+  init();
+})();
+</script>
+</body>
+</html>
