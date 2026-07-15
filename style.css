@@ -188,7 +188,7 @@ td.num,th.num{text-align:right;font-family:'Space Mono',monospace;}
 
 /* flash animation on sale */
 @keyframes saleFlash{0%{background:var(--aqua);}100%{background:#fff;}}
-.pos-btn.flashed{animation:saleFlash .4s ease-out;}
+.pos-btn.flashed{animation:saleFlash .4s;}
 
 /* ---- METRE READING ---- */
 .metre-panel{background:var(--ink);color:#fff;border-radius:var(--radius);
